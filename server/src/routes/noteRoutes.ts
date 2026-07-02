@@ -7,10 +7,7 @@ import { deleteNote } from "../controllers/notecontroller.js";
 import { updateNote } from "../controllers/notecontroller.js";
 import { PinNote } from "../controllers/notecontroller.js";
 import { authMiddleware } from "../middleware/authmiddleware.js";
-import {
-summarizeNote
-}
-from "../controllers/aiController";
+
 
 const router = express.Router();
 
@@ -21,11 +18,7 @@ router.get("/:id", authMiddleware, getNoteById);
 router.delete("/:id", authMiddleware, deleteNote);
 router.put("/:id", authMiddleware, updateNote);
 router.patch("/:id",authMiddleware,PinNote)
-router.post(
-"/summarize",
-authMiddleware,
-summarizeNote
-);
+
 
 
 export default router;

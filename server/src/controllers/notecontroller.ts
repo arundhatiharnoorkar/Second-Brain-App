@@ -163,7 +163,7 @@ export const getNotes = async (
     try {
       const noteId = Number(req.params.id);
   
-      const { title, content,category } = req.body;
+      const { title, content,category,tags } = req.body;
   
       const existingNote = await prisma.note.findFirst({
         where: {
@@ -187,6 +187,7 @@ export const getNotes = async (
           content,
           category,
           tags,
+          
         },
       });
   

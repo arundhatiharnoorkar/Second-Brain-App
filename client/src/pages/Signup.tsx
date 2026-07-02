@@ -7,8 +7,13 @@ function Signup() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSignup = async () => {
+if (!email.trim() || !password.trim()) {
+    setError("Email and password are required");
+    return;
+  }
     try {
         console.log("button clicked");
       const response = await axios.post(
@@ -58,6 +63,12 @@ function Signup() {
         >
           Signup
         </button>
+
+        {error && (
+  <p className="text-red-500">
+    {error}
+  </p>
+)}
 
       </div>
     </div>

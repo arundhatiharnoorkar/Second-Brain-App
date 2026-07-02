@@ -14,6 +14,9 @@ function Dashboard() {
   const [content, setContent] =
     useState("");
 
+  const [tags, setTags] =
+  useState("");
+
   const [editingId, setEditingId] =
     useState<number | null>(null);
 
@@ -21,6 +24,11 @@ function Dashboard() {
     useState("");
 
   const [editContent, setEditContent] =
+    useState("");
+
+  const [editCategory, setEditCategory] =
+    useState("");
+  const [editTag, setEditTag] =
     useState("");
 
   const [search, setSearch] =
@@ -46,7 +54,7 @@ function Dashboard() {
 }, []);
 
 const [summary, setSummary] = useState("");
-const [summaryLoading, setSummaryLoading] = useState(false);
+
 
   useEffect(() => {
   localStorage.setItem(
@@ -55,8 +63,7 @@ const [summaryLoading, setSummaryLoading] = useState(false);
   );
 }, [darkMode]);
 
-  const [tags, setTags] =
-  useState("");
+  
  
 
   const fetchNotes = async () => {
@@ -175,6 +182,33 @@ if (!content.trim()) {
     }
   };
 
+  const summarizeNote = async (id: number) => {
+
+  try {
+
+    const token = localStorage.getItem("token");
+
+    const res = await axios.post(
+      `http://localhost:5000/api/ai/summarize/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setSummary(res.data.summary);
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Failed to summarize note");
+
+  }
+
+};
+
   const deleteNote = async (
     id: number
   ) => {
@@ -272,6 +306,8 @@ if (!content.trim()) {
     setEditTitle(note.title);
 
     setEditContent(note.content);
+    setEditCategory(note.category);
+    setEditTag(note.tags);
   };
 
   const updateNote = async () => {
@@ -284,6 +320,8 @@ if (!content.trim()) {
         {
           title: editTitle,
           content: editContent,
+          category: editCategory,
+          tags: editTag,
         },
         {
           headers: {
@@ -373,60 +411,7 @@ if (!content.trim()) {
       Number(a.isPinned)
   );
 
-  const summarizeNote = async (id:number) => {
-
-  try {
-
-    setSummaryLoading(true);
-
-    const token =
-      localStorage.getItem("token");
-
-
-    const response =
-      await axios.post(
-
-        "http://localhost:5000/api/notes/summarize",
-
-        {
-          content:
-          notes.find(
-            (note)=>note.id===id
-          ).content
-        },
-
-        {
-          headers:{
-            Authorization:
-            `Bearer ${token}`
-          }
-        }
-
-      );
-
-
-    setSummary(
-      response.data.summary
-    );
-
-
-  }
-  catch(error){
-
-    toast.error(
-      "AI summary failed"
-    );
-
-    console.log(error);
-
-  }
-  finally{
-
-    setSummaryLoading(false);
-
-  }
-
-};
+  
 
   const inputClass = darkMode
     ? "bg-gray-800 text-white placeholder-gray-400 border border-gray-600 rounded-xl p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
@@ -554,13 +539,41 @@ if (!content.trim()) {
       </h1>
 
       {summary && (
-        <div className={darkMode
-          ? "bg-purple-900/40 border border-purple-700 p-4 rounded-xl mb-5"
-          : "bg-purple-50 border border-purple-200 p-4 rounded-xl mb-5"}>
-          <h3 className="font-bold text-purple-500 mb-1">🤖 AI Summary</h3>
-          <p className={darkMode ? "text-gray-300 text-sm" : "text-gray-700 text-sm"}>{summary}</p>
-        </div>
+  <div
+    className={
+      darkMode
+        ? "bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500 rounded-2xl p-5 mb-6 shadow-lg"
+        : "bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-2xl p-5 mb-6 shadow-md"
+    }
+  >
+    <h3
+      className={
+        darkMode
+          ? "text-xl font-bold text-indigo-300 mb-4"
+          : "text-xl font-bold text-indigo-700 mb-4"
+      }
+    >
+      🤖 AI Summary
+    </h3>
+
+    <ul
+      className={
+        darkMode
+          ? "list-disc pl-6 text-gray-200 space-y-2"
+          : "list-disc pl-6 text-gray-700 space-y-2"
+      }
+    >
+      {summary.split("\n").map(
+        (line, index) =>
+          line.trim() && (
+            <li key={index}>
+              {line.replace(/^\*\s*/, "")}
+            </li>
+          )
       )}
+    </ul>
+  </div>
+)}
 
       <hr className={darkMode ? "border-gray-700 mb-6" : "border-gray-200 mb-6"} />
 
@@ -599,6 +612,28 @@ if (!content.trim()) {
                       )
                     }
                     className={inputClass + " min-h-[100px] resize-y"}
+                  />
+
+                  <input
+                    type="text"
+                    value={editCategory}
+                    onChange={(e) =>
+                      setEditCategory(
+                        e.target.value
+                      )
+                    }
+                    className={inputClass}
+                  />
+
+                  <input
+                    type="text"
+                    value={editTag}
+                    onChange={(e) =>
+                      setEditTag(
+                        e.target.value
+                      )
+                    }
+                    className={inputClass}
                   />
 
                   <button
@@ -675,6 +710,16 @@ if (!content.trim()) {
                     >
                       🗑️ Delete
                     </button>
+
+                    <button
+  onClick={() => summarizeNote(note.id)}
+  className="
+    bg-purple-600
+    hover:bg-red-600 text-white px-4 py-1.5 text-sm font-semibold rounded-lg transition"
+  
+>
+  🤖 Summarize
+</button>
 
                     <button
                       onClick={() =>
