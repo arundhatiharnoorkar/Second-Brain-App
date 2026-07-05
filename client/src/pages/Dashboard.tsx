@@ -3,6 +3,8 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 import Logout from "./Logout";
+const API = import.meta.env.VITE_API_URL;
+
 
 function Dashboard() {
   const [notes, setNotes] =
@@ -74,7 +76,7 @@ const [summary, setSummary] = useState("");
         localStorage.getItem("token");
 
       const response = await axios.get(
-        "http://localhost:5000/api/notes",
+        `${API}/api/notes`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -132,7 +134,7 @@ if (!content.trim()) {
        
 
       await axios.post(
-        "http://localhost:5000/api/notes",
+        `${API}/api/notes`,
         {
           title,
           content,
@@ -189,7 +191,7 @@ if (!content.trim()) {
     const token = localStorage.getItem("token");
 
     const res = await axios.post(
-      `http://localhost:5000/api/ai/summarize/${id}`,
+      `${API}/api/ai/summarize/${id}`,
       {},
       {
         headers: {
@@ -217,7 +219,7 @@ if (!content.trim()) {
         localStorage.getItem("token");
 
       await axios.delete(
-        `http://localhost:5000/api/notes/${id}`,
+        `${API}/api/notes/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -262,7 +264,7 @@ if (!content.trim()) {
         localStorage.getItem("token");
 
       await axios.patch(
-        `http://localhost:5000/api/notes/${id}`,
+        `${API}/api/notes/${id}`,
         {},
         {
           headers: {
@@ -316,7 +318,7 @@ if (!content.trim()) {
         localStorage.getItem("token");
 
       await axios.put(
-        `http://localhost:5000/api/notes/${editingId}`,
+        `${API}/api/notes/${editingId}`,
         {
           title: editTitle,
           content: editContent,

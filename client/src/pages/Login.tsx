@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+const API = import.meta.env.VITE_API_URL;
 
 
 
@@ -20,7 +21,7 @@ function Login() {
     try {
         console.log("button clicked");
       const response = await axios.post(
-        "http://localhost:5000/api/auth/signin",
+        "${API}/api/auth/signin",
         {
           email,
           password,

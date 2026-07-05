@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+const API = import.meta.env.VITE_API_URL;
 
 function Signup() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ if (!email.trim() || !password.trim()) {
     try {
         console.log("button clicked");
       const response = await axios.post(
-        "http://localhost:5000/api/auth/signup",
+        "${API}/api/auth/signup",
         {
           email,
           password,
