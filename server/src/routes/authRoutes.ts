@@ -2,9 +2,7 @@ import express from "express";
 import { signup } from "../controllers/authcontroller.js";
 import { signin } from "../controllers/authcontroller.js";
 import { authMiddleware } from "../middleware/authmiddleware.js";
-import {
-  googleLogin,
-} from "../controllers/authController";
+
 
 const router = express.Router();
 
