@@ -18,7 +18,7 @@ if (!email.trim() || !password.trim()) {
     try {
         console.log("button clicked");
       const response = await axios.post(
-        "${API}/api/auth/signup",
+        `${API}/api/auth/signup`,
         {
           email,
           password,
