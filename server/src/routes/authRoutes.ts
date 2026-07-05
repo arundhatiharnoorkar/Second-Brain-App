@@ -3,6 +3,7 @@ import { signup } from "../controllers/authcontroller.js";
 import { signin } from "../controllers/authcontroller.js";
 import { authMiddleware } from "../middleware/authmiddleware.js";
 
+
 const router = express.Router();
 
 router.post("/signup", signup);
