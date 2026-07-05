@@ -101,32 +101,4 @@ export const signin = async (req: Request, res: Response) => {
  
   };
 
-  export const googleLogin =
-  async (req: Request, res: Response) => {
-
-    const { email, name } =
-      req.body;
-
-    let user =
-      await prisma.user.findUnique({
-        where: { email },
-      });
-
-    if (!user) {
-      user =
-        await prisma.user.create({
-          data: {
-            email,
-            name,
-          },
-        });
-    }
-
-    const token =
-      jwt.sign(
-        { userId: user.id },
-        process.env.JWT_SECRET!
-      );
-
-    res.json({ token });
-  };
+ 
