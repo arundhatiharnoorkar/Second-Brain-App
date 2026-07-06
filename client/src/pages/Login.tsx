@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link} from "react-router-dom";
 import toast from "react-hot-toast";
 const API = import.meta.env.VITE_API_URL;
 
@@ -85,6 +85,19 @@ function Login() {
     {error}
   </p>
 )}
+
+
+<div className="mt-6 text-center">
+  <p className="text-gray-500 text-sm">
+    Don't have an account?{" "}
+    <Link
+      to="/signup"
+      className="text-indigo-600 font-semibold hover:text-indigo-700 hover:underline transition"
+    >
+      Sign Up
+    </Link>
+  </p>
+</div>
 
      
       </div>
