@@ -15,6 +15,31 @@ if (!email.trim() || !password.trim()) {
     setError("Email and password are required");
     return;
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setError("Invalid email address");
+    
+}
+
+  if (password.length<8){
+     setError("Password should contain minimum 8 characters");
+  }
+  if (!/[A-Z]/.test(password)){
+    setError("Password should contain minimum 1 uppercase letter");
+
+  }
+  if (!/[a-z]/.test(password)){
+    setError("Password should contain minimum 1 lowercase letter");
+
+  }
+  if (!/[0-9]/.test(password)){
+    setError("Password should contain minimum 1 digit");
+
+  }
+
+  if(!/[^A-Za-z0-9]/.test(password)){
+    setError("Password should contain minimum 1 special character");
+
+  }
     try {
         console.log("button clicked");
       const response = await axios.post(
