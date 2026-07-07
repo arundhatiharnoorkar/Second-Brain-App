@@ -3,7 +3,7 @@ import prisma from "../prisma/client.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { signupSchema } from "../validations/authValidation.js";
-import { z } from "zod";
+
 
 export const signup = async (req: Request, res: Response) => {
   try {
