@@ -10,42 +10,34 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const passwordChecks = {
+  length: password.length >= 8,
+  uppercase: /[A-Z]/.test(password),
+  lowercase: /[a-z]/.test(password),
+  number: /[0-9]/.test(password),
+  special: /[^A-Za-z0-9]/.test(password),
+};
+
+const isPasswordValid =
+  passwordChecks.length &&
+  passwordChecks.uppercase &&
+  passwordChecks.lowercase &&
+  passwordChecks.number &&
+  passwordChecks.special;
+
   const handleSignup = async () => {
-if (!email.trim() || !password.trim()) {
-    setError("Email and password are required");
-    return;
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setError("Invalid email address");
-    return;
-    
-}
 
-  if (password.length<8){
-     setError("Password should contain minimum 8 characters");
-     return;
-  }
-  if (!/[A-Z]/.test(password)){
-    setError("Password should contain minimum 1 uppercase letter");
-    return;
+    if (!email.trim()){
+      setError("Email is required");
+      return;
+    }
 
-  }
-  if (!/[a-z]/.test(password)){
-    setError("Password should contain minimum 1 lowercase letter");
-    return;
+    if (!password.trim()){
+      setError("password is required");
+      return;
+    }
 
-  }
-  if (!/[0-9]/.test(password)){
-    setError("Password should contain minimum 1 digit");
-    return;
 
-  }
-
-  if(!/[^A-Za-z0-9]/.test(password)){
-    setError("Password should contain minimum 1 special character");
-    return;
-
-  }
     try {
         console.log("button clicked");
       const response = await axios.post(
@@ -90,11 +82,39 @@ if (!email.trim() || !password.trim()) {
           className="bg-white text-gray-900 placeholder-gray-400 border border-gray-200 rounded-xl p-3 w-full mb-5 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
         />
 
-        <button onClick={handleSignup}
-          className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white w-full py-2.5 font-semibold rounded-xl transition shadow-md shadow-indigo-200"
-        >
-          Signup
-        </button>
+        <div className="text-sm mt-2 space-y-1">
+  <p className={passwordChecks.length ? "text-green-600" : "text-gray-500"}>
+    {passwordChecks.length ? "✅" : "⭕"} At least 8 characters
+  </p>
+
+  <p className={passwordChecks.uppercase ? "text-green-600" : "text-gray-500"}>
+    {passwordChecks.uppercase ? "✅" : "⭕"} One uppercase letter
+  </p>
+
+  <p className={passwordChecks.lowercase ? "text-green-600" : "text-gray-500"}>
+    {passwordChecks.lowercase ? "✅" : "⭕"} One lowercase letter
+  </p>
+
+  <p className={passwordChecks.number ? "text-green-600" : "text-gray-500"}>
+    {passwordChecks.number ? "✅" : "⭕"} One number
+  </p>
+
+  <p className={passwordChecks.special ? "text-green-600" : "text-gray-500"}>
+    {passwordChecks.special ? "✅" : "⭕"} One special character
+  </p>
+</div>
+
+       <button
+  onClick={handleSignup}
+  disabled={!isPasswordValid}
+  className={`w-full py-2.5 rounded-xl font-semibold transition ${
+    isPasswordValid
+      ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+  }`}
+>
+  Signup
+</button>
 
         {error && (
   <p className="text-red-500">
