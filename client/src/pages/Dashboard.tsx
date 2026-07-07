@@ -597,6 +597,7 @@ if (!content.trim()) {
                 <div>
                   <input
                     type="text"
+                    placeholder="Title"
                     value={editTitle}
                     onChange={(e) =>
                       setEditTitle(
@@ -608,6 +609,7 @@ if (!content.trim()) {
 
                   <textarea
                     value={editContent}
+                    placeholder="Content"
                     onChange={(e) =>
                       setEditContent(
                         e.target.value
@@ -618,6 +620,7 @@ if (!content.trim()) {
 
                   <input
                     type="text"
+                    placeholder="Category"
                     value={editCategory}
                     onChange={(e) =>
                       setEditCategory(
@@ -629,6 +632,7 @@ if (!content.trim()) {
 
                   <input
                     type="text"
+                    placeholder="Tag"
                     value={editTag}
                     onChange={(e) =>
                       setEditTag(
