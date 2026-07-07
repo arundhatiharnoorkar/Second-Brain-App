@@ -17,27 +17,33 @@ if (!email.trim() || !password.trim()) {
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     setError("Invalid email address");
+    return;
     
 }
 
   if (password.length<8){
      setError("Password should contain minimum 8 characters");
+     return;
   }
   if (!/[A-Z]/.test(password)){
     setError("Password should contain minimum 1 uppercase letter");
+    return;
 
   }
   if (!/[a-z]/.test(password)){
     setError("Password should contain minimum 1 lowercase letter");
+    return;
 
   }
   if (!/[0-9]/.test(password)){
     setError("Password should contain minimum 1 digit");
+    return;
 
   }
 
   if(!/[^A-Za-z0-9]/.test(password)){
     setError("Password should contain minimum 1 special character");
+    return;
 
   }
     try {
