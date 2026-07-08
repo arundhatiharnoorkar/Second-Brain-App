@@ -166,7 +166,7 @@ function Login() {
         )}
 
         <button
-          onClick={Login}
+          onClick={handleLogin}
           disabled={!isFormValid || loading}
           className={`w-full py-3 rounded-xl font-semibold transition ${
             isFormValid
