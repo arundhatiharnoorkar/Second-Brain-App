@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
+const [showPassword, setShowPassword] = useState(false);
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -82,7 +84,7 @@ function Signup() {
           Start capturing your ideas
         </p>
 
-        {/* Email */}
+        
 
         <input
           type="email"
@@ -101,20 +103,30 @@ function Signup() {
           </p>
         )}
 
-        {/* Password */}
+        
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            setError("");
-          }}
-          className="bg-white text-gray-900 placeholder-gray-400 border border-gray-200 rounded-xl p-3 w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-        />
+        <div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Password"
+    value={password}
+    onChange={(e) => {
+      setPassword(e.target.value);
+      setError("");
+    }}
+    className="bg-white text-gray-900 placeholder-gray-400 border border-gray-200 rounded-xl p-3 w-full pr-12 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+  />
 
-        {/* Password Requirements */}
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+  >
+    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+  </button>
+</div>
+
+       
 
         {password.length > 0 && (
           <div className="text-sm mt-3 space-y-1 mb-5">
@@ -142,7 +154,7 @@ function Signup() {
           </div>
         )}
 
-        {/* Signup Button */}
+        
 
         <button
           onClick={handleSignup}
@@ -156,7 +168,7 @@ function Signup() {
           {loading ? "Creating Account..." : "Create Account"}
         </button>
 
-        {/* Error */}
+       
 
         {error && (
           <p className="text-red-500 text-sm mt-3 text-center">
@@ -164,7 +176,7 @@ function Signup() {
           </p>
         )}
 
-        {/* Sign In */}
+        
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Already have an account?{" "}
