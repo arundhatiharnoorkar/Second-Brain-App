@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Eye, EyeOff } from "lucide-react";
-const [showPassword, setShowPassword] = useState(false);
+
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -14,6 +14,7 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const passwordChecks = {
     length: password.length >= 8,
