@@ -114,7 +114,7 @@ function Login() {
         <button
   onClick={handleLogin}
   disabled={loading}
-  className={`w-full py-3 rounded-xl font-semibold transition ${
+  className={`w-full py-3 rounded-xl font-semibold transition mt-3 ${
     loading
       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
       : "bg-indigo-600 hover:bg-indigo-700 text-white"
