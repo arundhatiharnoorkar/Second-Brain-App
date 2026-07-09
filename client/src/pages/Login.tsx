@@ -85,7 +85,8 @@ function Login() {
           className="bg-white text-gray-900 placeholder-gray-400 border border-gray-200 rounded-xl p-3 w-full mb-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
         />
 
-        <input
+        <div className="relative">
+  <input
     type={showPassword ? "text" : "password"}
     placeholder="Password"
     value={password}
@@ -131,6 +132,7 @@ function Login() {
 </div>
 
      
+      </div>
       </div>
    
   );
