@@ -18,6 +18,10 @@ function Login() {
   const handleLogin = async () => {
 
      setError("");
+    if (!email.trim() && !password.trim()){
+      setError("Email and password are required");
+      return;
+    }
 
     if (!email.trim()) {
       setError("Email is required");
