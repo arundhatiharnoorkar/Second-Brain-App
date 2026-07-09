@@ -107,7 +107,7 @@ function Login() {
 </div>
 
         <button onClick={handleLogin}
-          className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white w-full py-2.5 font-semibold rounded-xl transition shadow-md shadow-indigo-200"
+          className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white w-full py-2.5 font-semibold rounded-xl transition shadow-md shadow-indigo-200 mt-3"
         >
           Login
         </button>

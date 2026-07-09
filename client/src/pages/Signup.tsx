@@ -160,10 +160,10 @@ function Signup() {
         <button
           onClick={handleSignup}
           disabled={!isFormValid || loading}
-          className={`w-full py-3 rounded-xl font-semibold transition ${
+          className={`w-full py-3 rounded-xl font-semibold transition  mt-3 ${
             isFormValid
               ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-300 text-gray-500"
           }`}
         >
           {loading ? "Creating Account..." : "Create Account"}
