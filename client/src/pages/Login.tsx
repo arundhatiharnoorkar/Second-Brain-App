@@ -13,6 +13,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const[showPassword,setShowPassword]=useState(false);
+  const[loading,setLoading]=useState(false);
   
 
   
@@ -34,6 +35,7 @@ function Login() {
       setError("Password is required");
       return;
     }
+    setLoading(true);
 
     
 
@@ -61,9 +63,12 @@ function Login() {
       
     } catch (error: any) {
         
-        console.log(error.message);
+        setError(error.message);
         toast.error("Login failed");
       }
+      finally {
+      setLoading(false);
+    }
 
   };
 
@@ -106,11 +111,17 @@ function Login() {
   </button>
 </div>
 
-        <button onClick={handleLogin}
-          className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white w-full py-2.5 font-semibold rounded-xl transition shadow-md shadow-indigo-200 mt-3"
-        >
-          Login
-        </button>
+        <button
+  onClick={handleLogin}
+  disabled={loading}
+  className={`w-full py-3 rounded-xl font-semibold transition ${
+    loading
+      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+      : "bg-indigo-600 hover:bg-indigo-700 text-white"
+  }`}
+>
+  {loading ? "Signing in..." : "Login"}
+</button>
 
          {error && (
   <p className="text-red-500">
