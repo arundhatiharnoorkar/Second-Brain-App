@@ -163,7 +163,7 @@ function Signup() {
           className={`w-full py-3 rounded-xl font-semibold transition  mt-3 ${
             isFormValid
               ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-              : "bg-gray-300 text-gray-500"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
         >
           {loading ? "Creating Account..." : "Create Account"}
