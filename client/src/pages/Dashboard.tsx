@@ -56,6 +56,9 @@ function Dashboard() {
 }, []);
 
 const [summary, setSummary] = useState("");
+const [summaryId, setSummaryId] = useState("");
+const [summaryLoadingId, setSummaryLoadingId] = useState<number | null>(null);
+const [summaryError, setSummaryError] = useState("");
 
 
   useEffect(() => {
@@ -186,6 +189,9 @@ if (!content.trim()) {
 
   const summarizeNote = async (id: number) => {
 
+   
+    
+      
   try {
 
     const token = localStorage.getItem("token");
@@ -201,13 +207,17 @@ if (!content.trim()) {
     );
 
     setSummary(res.data.summary);
+    setSummaryError("");
+    
 
-  } catch (error) {
+  } catch (error: any) {
+  const message =
+    error.response?.data?.message ||
+    "Failed to generate summary.";
+    setSummaryError(message);
 
-    console.error(error);
-    alert("Failed to summarize note");
-
-  }
+  toast.error(message);
+}
 
 };
 
@@ -310,6 +320,24 @@ if (!content.trim()) {
     setEditContent(note.content);
     setEditCategory(note.category);
     setEditTag(note.tags);
+  };
+
+  const startSummary = async (note: any) => {
+    setSummaryError("");
+    setSummaryId(note.id);
+    setSummaryLoadingId(note.id);
+    try {
+    await summarizeNote(note.id);
+  } finally {
+    setSummaryLoadingId(null);
+  }
+    
+    
+      
+    
+
+
+   
   };
 
   const updateNote = async () => {
@@ -540,43 +568,7 @@ if (!content.trim()) {
         All your notes 📚
       </h1>
 
-      {summary && (
-  <div
-    className={
-      darkMode
-        ? "bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500 rounded-2xl p-5 mb-6 shadow-lg"
-        : "bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-2xl p-5 mb-6 shadow-md"
-    }
-  >
-    <h3
-      className={
-        darkMode
-          ? "text-xl font-bold text-indigo-300 mb-4"
-          : "text-xl font-bold text-indigo-700 mb-4"
-      }
-    >
-      🤖 AI Summary
-    </h3>
-
-    <ul
-      className={
-        darkMode
-          ? "list-disc pl-6 text-gray-200 space-y-2"
-          : "list-disc pl-6 text-gray-700 space-y-2"
-      }
-    >
-      {summary.split("\n").map(
-        (line, index) =>
-          line.trim() && (
-            <li key={index}>
-              {line.replace(/^\*\s*/, "")}
-            </li>
-          )
-      )}
-    </ul>
-  </div>
-)}
-
+      
       <hr className={darkMode ? "border-gray-700 mb-6" : "border-gray-200 mb-6"} />
 
       {sortedNotes.length === 0 ? (
@@ -718,7 +710,7 @@ if (!content.trim()) {
                     </button>
 
                     <button
-  onClick={() => summarizeNote(note.id)}
+  onClick={() => startSummary(note)}
   className="
     bg-purple-600
     hover:bg-red-600 text-white px-4 py-1.5 text-sm font-semibold rounded-lg transition"
@@ -742,6 +734,81 @@ if (!content.trim()) {
 
                     
                   </div>
+
+                  {summaryId==note.id && (
+                    
+
+
+  <div
+    className={
+      darkMode
+        ? "relative bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500 rounded-2xl p-5 mt-3 mb-6 shadow-lg"
+        : "relative bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 mt-3 rounded-2xl p-5 mb-6 shadow-md"
+    }
+  >
+    {summaryLoadingId === note.id  ? (
+      <p>Generating Summary...</p>
+    ):(
+      <div>
+    <h3
+      className={
+        darkMode
+          ? "text-xl font-bold text-indigo-300 mb-4"
+          : "text-xl font-bold text-indigo-700 mb-4"
+      }
+    >
+      🤖 AI Summary
+    </h3>
+
+    <ul
+      className={
+        darkMode
+          ? "list-disc pl-6 text-gray-200 space-y-2"
+          : "list-disc pl-6 text-gray-700 space-y-2"
+      }
+    >
+      {summary.split("\n").map(
+        (line, index) =>
+          line.trim() && (
+            <li key={index}>
+              {line.replace(/^\*\s*/, "")}
+            </li>
+          )
+      )}
+    </ul>
+
+    </div>
+    )}
+
+    <button
+      onClick={() => {setSummary(""),setSummaryId(""), setSummaryError("");}}
+      className="absolute top-2 right-2 font-bold text-red-600 hover:text-red-800 text-lg"
+    >
+      ✕
+    </button>
+
+
+    {summaryError &&(
+  <div className="mt-3 rounded-lg bg-red-100 border border-red-300 p-3 text-red-700">
+    {summaryError+"  "}
+    
+
+    <button
+      onClick={() => setSummaryError("")}
+      className="font-bold text-red-600 "
+    >
+      ✕
+    </button>
+  </div>
+)}
+  </div>
+
+  
+    
+    
+)}
+
+
                 </div>
               )}
             </div>

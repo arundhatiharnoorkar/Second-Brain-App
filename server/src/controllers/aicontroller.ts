@@ -48,11 +48,18 @@ return res.json({
 });
 
 }
-catch (error) {
+catch (error:any) {
 
     console.error(error);
 
-    return res.status(500).json({
+     if (error.status === 429) {
+    return res.status(429).json({
+      message:
+        "Daily AI quota exceeded. Please try again tomorrow.",
+    });
+  }
+
+    res.status(500).json({
       message: "Failed to summarize note",
     });
 }
