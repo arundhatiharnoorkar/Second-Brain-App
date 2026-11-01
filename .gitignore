@@ -1,7 +1,20 @@
-node_modules
-# Keep environment variables out of version control
+# Dependencies
+node_modules/
+
+# Uploaded files
+uploads/
+
+# Environment variables and secrets
 .env
+.env.*
+!.env.example
 
-/src/generated/prisma
+# Generated Prisma client
+/src/generated/prisma/
 
-/src/generated/prisma
+# Build outputs
+dist/
+build/
+
+# macOS files
+.DS_Store

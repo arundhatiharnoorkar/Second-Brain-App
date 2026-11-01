@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import SharedNote from "./pages/SharedNote";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -34,6 +35,11 @@ function App() {
               <Dashboard />
             </ProtectedRoute>
           }
+        />
+
+        <Route
+          path="/share/:token"
+          element={<SharedNote />}
         />
       </Routes>
     </>

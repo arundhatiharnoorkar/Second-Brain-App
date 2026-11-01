@@ -1,6 +1,24 @@
 import type { Response } from "express";
 import prisma from "../prisma/client.js";
 import type { AuthRequest } from "../middleware/authmiddleware.js";
+import { deleteUploadedFile } from "../utils/fileStorage.js";
+
+const requireUserId = (req: AuthRequest, res: Response) => {
+  if (!req.userId) {
+    res.status(401).json({ message: "Invalid token" });
+    return null;
+  }
+
+  return req.userId;
+};
+
+const attachmentFields = {
+  id: true,
+  fileName: true,
+  fileType: true,
+  fileSize: true,
+  createdAt: true,
+} as const;
 
 export const createNote = async (
   req: AuthRequest,
@@ -34,13 +52,25 @@ export const getNotes = async (
     res: Response
   ) => {
     try {
+      const userId = requireUserId(req, res);
+
+      if (!userId) {
+        return;
+      }
+
       const notes = await prisma.note.findMany({
         where: {
-          userId: req.userId,
+          userId,
         },
         orderBy: {
           createdAt: "desc",
         },
+
+        include: {
+        attachments: {
+          select: attachmentFields,
+        },
+      },
       });
   
       res.json(notes);
@@ -56,12 +86,23 @@ export const getNotes = async (
     res: Response
   ) => {
     try {
+      const userId = requireUserId(req, res);
+
+      if (!userId) {
+        return;
+      }
+
       const noteId = Number(req.params.id);
   
       const note = await prisma.note.findFirst({
         where: {
           id: noteId,
-          userId: req.userId,
+          userId,
+        },
+        include: {
+          attachments: {
+            select: attachmentFields,
+          },
         },
       });
   
@@ -85,11 +126,17 @@ export const getNotes = async (
     res: Response
   ) => {
     try {
+      const userId = requireUserId(req, res);
+
+      if (!userId) {
+        return;
+      }
+
       const query = req.query.query as string;
   
       const notes = await prisma.note.findMany({
         where: {
-          userId: req.userId,
+          userId,
   
           OR: [
             {
@@ -123,12 +170,18 @@ export const getNotes = async (
     res: Response
   ) => {
     try {
+      const userId = requireUserId(req, res);
+
+      if (!userId) {
+        return;
+      }
+
       const noteId = Number(req.params.id);
   
       const note = await prisma.note.findFirst({
         where: {
           id: noteId,
-          userId: req.userId,
+          userId,
         },
       });
   
@@ -137,6 +190,14 @@ export const getNotes = async (
           message: "Note not found",
         });
       }
+
+      const attachments = await prisma.attachment.findMany({
+        where: { noteId },
+      });
+
+      await Promise.all(
+        attachments.map((attachment) => deleteUploadedFile(attachment.s3Key))
+      );
   
       await prisma.note.delete({
         where: {
@@ -161,6 +222,12 @@ export const getNotes = async (
     res: Response
   ) => {
     try {
+      const userId = requireUserId(req, res);
+
+      if (!userId) {
+        return;
+      }
+
       const noteId = Number(req.params.id);
   
       const { title, content,category,tags } = req.body;
@@ -168,7 +235,7 @@ export const getNotes = async (
       const existingNote = await prisma.note.findFirst({
         where: {
           id: noteId,
-          userId: req.userId,
+          userId,
         },
       });
   

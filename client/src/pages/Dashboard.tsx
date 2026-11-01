@@ -1,14 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
 import Logout from "./Logout";
+import NoteAttachments from "../components/NoteAttachments";
+import ShareNoteDialog from "../components/ShareNoteDialog";
+import QuizDialog from "../components/QuizDialog";
+import type { Note } from "../types";
 const API = import.meta.env.VITE_API_URL;
 
 
+
 function Dashboard() {
-  const [notes, setNotes] =
-    useState<any[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+
+  
+
 
   const [title, setTitle] =
     useState("");
@@ -54,11 +61,21 @@ function Dashboard() {
   useEffect(() => {
   fetchNotes();
 }, []);
+const [selectedFiles, setSelectedFiles] = useState<{
+  [noteId: number]: File[];
+}>({});
+const [newNoteFiles, setNewNoteFiles] = useState<File[]>([]);
 
+const [uploadingNoteId, setUploadingNoteId] =
+  useState<number | null>(null);
 const [summary, setSummary] = useState("");
-const [summaryId, setSummaryId] = useState("");
+const [summaryId, setSummaryId] = useState<number | null>(null);
 const [summaryLoadingId, setSummaryLoadingId] = useState<number | null>(null);
 const [summaryError, setSummaryError] = useState("");
+const [shareNote, setShareNote] = useState<Note | null>(null);
+const [quizNote, setQuizNote] = useState<Note | null>(null);
+const noteFileInputs = useRef<Record<number, HTMLInputElement | null>>({});
+const newNoteFileInput = useRef<HTMLInputElement | null>(null);
 
 
   useEffect(() => {
@@ -118,6 +135,58 @@ const [summaryError, setSummaryError] = useState("");
     }
   };
 
+  const uploadFiles = async (
+    noteId: number,
+    files: File[],
+    announce = true
+  ) => {
+    if (!files.length) {
+      toast.error("Please select a file first");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    setUploadingNoteId(noteId);
+
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("noteId", noteId.toString());
+
+        await axios.post(`${API}/api/uploads`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+
+      if (announce) {
+        toast.success(
+          files.length === 1 ? "File uploaded" : `${files.length} files uploaded`
+        );
+      }
+
+      setSelectedFiles((prev) => ({
+        ...prev,
+        [noteId]: [],
+      }));
+
+      const input = noteFileInputs.current[noteId];
+      if (input) {
+        input.value = "";
+      }
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      if (announce) {
+        toast.error(error.response?.data?.message || "Upload failed");
+      }
+      throw error;
+    } finally {
+      setUploadingNoteId(null);
+    }
+  };
+
   const createNote = async () => {
 
 
@@ -130,13 +199,20 @@ if (!content.trim()) {
   toast.error("Content is required");
   return;
 }
+
+const MAX_CHARS = 100000;
+
+if (content.length > MAX_CHARS) {
+  toast.error("Note is too large. Maximum 100,000 characters.");
+  return;
+}
     try {
       const token =
         localStorage.getItem("token");
 
        
 
-      await axios.post(
+      const created = await axios.post(
         `${API}/api/notes`,
         {
           title,
@@ -151,14 +227,30 @@ if (!content.trim()) {
         }
       );
 
-     
+      let uploadFailed = false;
 
-      toast.success("Note created");
+      if (newNoteFiles.length > 0) {
+        try {
+          await uploadFiles(created.data.id, newNoteFiles, false);
+        } catch {
+          uploadFailed = true;
+        }
+      }
+
+      if (uploadFailed) {
+        toast.error("Note saved, but some files failed to upload");
+      } else {
+        toast.success("Note created");
+      }
 
       setTitle("");
       setContent("");
       setCategory("");
       setTags("");
+      setNewNoteFiles([]);
+      if (newNoteFileInput.current) {
+        newNoteFileInput.current.value = "";
+      }
 
       fetchNotes();
 
@@ -312,18 +404,19 @@ if (!content.trim()) {
     }
   };
 
-  const startEdit = (note: any) => {
+  const startEdit = (note: Note) => {
     setEditingId(note.id);
 
     setEditTitle(note.title);
 
     setEditContent(note.content);
-    setEditCategory(note.category);
-    setEditTag(note.tags);
+    setEditCategory(note.category || "");
+    setEditTag(note.tags || "");
   };
 
-  const startSummary = async (note: any) => {
+  const startSummary = async (note: Note) => {
     setSummaryError("");
+    setSummary("");
     setSummaryId(note.id);
     setSummaryLoadingId(note.id);
     try {
@@ -332,13 +425,11 @@ if (!content.trim()) {
     setSummaryLoadingId(null);
   }
     
-    
-      
-    
-
-
-   
   };
+
+  
+  
+
 
   const updateNote = async () => {
     try {
@@ -492,6 +583,8 @@ if (!content.trim()) {
           }
           className={inputClass}
         />
+
+        
       </div>
 
       {loading && (
@@ -551,6 +644,28 @@ if (!content.trim()) {
           />
         </div>
 
+        <div className="mb-3">
+          <label className={darkMode ? "text-sm text-gray-300" : "text-sm text-gray-600"}>
+            Attach images, videos, or files
+          </label>
+          <input
+            ref={newNoteFileInput}
+            type="file"
+            multiple
+            aria-label="Attach files to the new note"
+            accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip"
+            onChange={(e) =>
+              setNewNoteFiles(Array.from(e.target.files || []))
+            }
+            className="mt-2 block w-full text-sm"
+          />
+          {newNoteFiles.length > 0 && (
+            <p className={darkMode ? "mt-1 text-xs text-gray-400" : "mt-1 text-xs text-gray-500"}>
+              {newNoteFiles.length} file{newNoteFiles.length === 1 ? "" : "s"} selected
+            </p>
+          )}
+        </div>
+
         <div className="flex items-center justify-between mt-2">
           <button onClick={createNote}
             className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white px-6 py-2.5 font-semibold rounded-xl transition shadow-md shadow-indigo-200"
@@ -578,7 +693,7 @@ if (!content.trim()) {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {sortedNotes.map((note: any) => (
+          {sortedNotes.map((note: Note) => (
             <div
               key={note.id}
               className={darkMode
@@ -636,10 +751,16 @@ if (!content.trim()) {
 
                   <button
                     onClick={updateNote}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 font-semibold rounded-xl transition"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 font-semibold rounded-xl transition mb-3"
                   >
                     Save
                   </button>
+
+                  <NoteAttachments
+                    attachments={note.attachments || []}
+                    darkMode={darkMode}
+                    onDeleted={fetchNotes}
+                  />
                 </div>
               ) : (
                 <div>
@@ -652,7 +773,7 @@ if (!content.trim()) {
                     )}
                   </div>
 
-                  <p className={darkMode ? "text-gray-300 text-sm mb-3 leading-relaxed" : "text-gray-600 text-sm mb-3 leading-relaxed"}>
+                  <p className={darkMode ? "text-gray-300 text-sm mb-3 leading-relaxed whitespace-pre-wrap" : "text-gray-600 text-sm mb-3 leading-relaxed whitespace-pre-wrap"}>
                     {note.content}
                   </p>
 
@@ -665,10 +786,10 @@ if (!content.trim()) {
                       </span>
                     )}
                     <span className={darkMode ? "text-gray-500 self-center" : "text-gray-400 self-center"}>
-                      Created: {new Date(note.createdAt).toLocaleString()}
+                      Created: {note.createdAt ? new Date(note.createdAt).toLocaleString() : ""}
                     </span>
                     <span className={darkMode ? "text-gray-500 self-center" : "text-gray-400 self-center"}>
-                      Updated: {new Date(note.updatedAt).toLocaleString()}
+                      Updated: {note.updatedAt ? new Date(note.updatedAt).toLocaleString() : ""}
                     </span>
                   </div>
 
@@ -687,6 +808,12 @@ if (!content.trim()) {
                         </span>
                       ))}
                   </div>
+
+                  <NoteAttachments
+                    attachments={note.attachments || []}
+                    darkMode={darkMode}
+                    onDeleted={fetchNotes}
+                  />
 
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -732,10 +859,67 @@ if (!content.trim()) {
                         : "📌 Pin"}
                     </button>
 
-                    
+                    <button
+                      type="button"
+                      onClick={() => setShareNote(note)}
+                      className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-1.5 text-sm font-semibold rounded-lg transition"
+                    >
+                      Share
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setQuizNote(note)}
+                      className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 text-sm font-semibold rounded-lg transition"
+                    >
+                      Generate Quiz
+                    </button>
+
+                    <label className="flex cursor-pointer items-center gap-2">
+                      <span className="sr-only">Choose files for this note</span>
+                      <input
+                        ref={(element) => {
+                          noteFileInputs.current[note.id] = element;
+                        }}
+                        type="file"
+                        multiple
+                        aria-label={`Attach files to ${note.title}`}
+                        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip"
+                        onChange={(e) => {
+                          setSelectedFiles((prev) => ({
+                            ...prev,
+                            [note.id]: Array.from(e.target.files || []),
+                          }));
+                        }}
+                        className="block w-full max-w-[220px] text-sm"
+                      />
+                    </label>
+
+                    <button
+                      onClick={async () => {
+                        try {
+                          await uploadFiles(
+                            note.id,
+                            selectedFiles[note.id] || []
+                          );
+                          await fetchNotes();
+                        } catch {
+                          await fetchNotes();
+                        }
+                      }}
+                      disabled={
+                        !(selectedFiles[note.id]?.length) ||
+                        uploadingNoteId === note.id
+                      }
+                      className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-4 py-1.5 text-sm font-semibold rounded-lg transition"
+                    >
+                      {uploadingNoteId === note.id
+                        ? "Uploading..."
+                        : "Upload files"}
+                    </button>
                   </div>
 
-                  {summaryId==note.id && (
+                  {summaryId === note.id && (
                     
 
 
@@ -781,7 +965,7 @@ if (!content.trim()) {
     )}
 
     <button
-      onClick={() => {setSummary(""),setSummaryId(""), setSummaryError("");}}
+      onClick={() => {setSummary(""); setSummaryId(null); setSummaryError("");}}
       className="absolute top-2 right-2 font-bold text-red-600 hover:text-red-800 text-lg"
     >
       ✕
@@ -804,6 +988,8 @@ if (!content.trim()) {
   </div>
 
   
+
+  
     
     
 )}
@@ -815,8 +1001,26 @@ if (!content.trim()) {
           ))}
         </div>
       )}
+
+      {shareNote && (
+        <ShareNoteDialog
+          noteId={shareNote.id}
+          noteTitle={shareNote.title}
+          darkMode={darkMode}
+          onClose={() => setShareNote(null)}
+        />
+      )}
+
+      {quizNote && (
+        <QuizDialog
+          note={quizNote}
+          darkMode={darkMode}
+          onClose={() => setQuizNote(null)}
+        />
+      )}
     </div>
   );
 }
+
 
 export default Dashboard;

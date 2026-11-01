@@ -37,7 +37,10 @@ export const signup = async (req: Request, res: Response) => {
 
     res.status(201).json({
       message: "User created",
-      user,
+      user: {
+        id: user.id,
+        email: user.email,
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -61,7 +64,7 @@ export const signin = async (req: Request, res: Response) => {
         where: { email },
       });
   
-      if (!user) {
+      if (!user || !user.password) {
         return res.status(400).json({
           message: "Invalid credentials",
         });

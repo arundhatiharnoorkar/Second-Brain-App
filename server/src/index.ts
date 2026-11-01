@@ -4,6 +4,8 @@ import authRoutes from "./routes/authRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import dotenv from "dotenv";
+import uploadRoutes from "./routes/uploadRoutes.js";
+import shareRoutes from "./routes/shareRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -26,11 +28,13 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({limit:"5mb"}));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/uploads", uploadRoutes);
+app.use("/api/shares", shareRoutes);
 
 
 const PORT = process.env.PORT || 5000;
